@@ -9,10 +9,15 @@
 
     <ItemGroup>
       <PackageReference Include="Google.Apis.Sheets.v4" Version="1.70.0.3819" />
-    </ItemGroup>
-
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.6" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.6" />
+    </ItemGroup>    
     <ItemGroup>
       <None Update="credentials.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="appsettings.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>

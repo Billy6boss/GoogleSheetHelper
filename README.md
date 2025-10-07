@@ -36,8 +36,10 @@
 2. 查看 URL：`https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID/edit`
 3. 從 URL 中複製 `YOUR_SPREADSHEET_ID` 部分
 
-### 6. 更新 Program.cs 檔案
-將 `YOUR_SPREADSHEET_ID` 替換為您在上一步驟中複製的 ID。
+### 6. 設定 appsettings.json 檔案
+1. 開啟 appsettings.json 檔案
+2. 將 `GoogleSheet:SpreadsheetId` 的值替換為您在上一步驟中複製的 ID
+3. 若有需要，可以修改 `GoogleSheet:CredentialsPath` 的值為您的憑證檔案路徑
 
 ### 7. 執行您的應用程式
 建置並執行您的應用程式，測試與 Google Sheets 的連線。

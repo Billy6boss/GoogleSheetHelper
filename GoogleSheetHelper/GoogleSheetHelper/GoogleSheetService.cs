@@ -15,14 +15,14 @@ namespace GoogleSheetHelper
         private readonly string _spreadsheetId;
 
         /// <summary>
-        /// Initialize the Google Sheets service with credentials from a JSON file
+        /// 使用 JSON 憑證檔初始化 Google Sheets 服務
         /// </summary>
-        /// <param name="credentialsFilePath">Path to the JSON credentials file</param>
-        /// <param name="spreadsheetId">The ID of the spreadsheet (found in the URL)</param>
+        /// <param name="credentialsFilePath">JSON 憑證檔的路徑</param>
+        /// <param name="spreadsheetId">試算表的 ID (可在 URL 中找到)</param>
         public GoogleSheetService(string credentialsFilePath, string spreadsheetId)
         {
             _spreadsheetId = spreadsheetId;
-            
+
             using var stream = new FileStream(credentialsFilePath, FileMode.Open, FileAccess.Read);
             var credential = GoogleCredential.FromStream(stream)
                 .CreateScoped(SheetsService.Scope.Spreadsheets);
@@ -35,10 +35,10 @@ namespace GoogleSheetHelper
         }
 
         /// <summary>
-        /// Read data from a specific range in the spreadsheet
+        /// 從試算表中讀取特定範圍的資料
         /// </summary>
-        /// <param name="range">The A1 notation of the range (e.g., "Sheet1!A1:D10")</param>
-        /// <returns>A list of rows, where each row is a list of cell values</returns>
+        /// <param name="range">範圍的 A1 表示法 (例如, "Sheet1!A1:D10")</param>
+        /// <returns>行列表，其中每一行是一個儲存格值的列表</returns>
         public async Task<IList<IList<object>>> ReadAsync(string range)
         {
             var request = _sheetsService.Spreadsheets.Values.Get(_spreadsheetId, range);
@@ -47,43 +47,43 @@ namespace GoogleSheetHelper
         }
 
         /// <summary>
-        /// Update data in a specific range in the spreadsheet
+        /// 更新試算表中特定範圍的資料
         /// </summary>
-        /// <param name="range">The A1 notation of the range (e.g., "Sheet1!A1:D10")</param>
-        /// <param name="values">The values to update</param>
-        /// <returns>The number of updated cells</returns>
+        /// <param name="range">範圍的 A1 表示法 (例如, "Sheet1!A1:D10")</param>
+        /// <param name="values">要更新的值</param>
+        /// <returns>更新的儲存格數量</returns>
         public async Task<int> UpdateAsync(string range, IList<IList<object>> values)
         {
             var valueRange = new ValueRange { Values = values };
             var request = _sheetsService.Spreadsheets.Values.Update(valueRange, _spreadsheetId, range);
             request.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
-            
+
             var response = await request.ExecuteAsync();
             return response.UpdatedCells ?? 0;
         }
 
         /// <summary>
-        /// Append data to a specific range in the spreadsheet
+        /// 向試算表中特定範圍附加資料
         /// </summary>
-        /// <param name="range">The A1 notation of the range (e.g., "Sheet1!A:D")</param>
-        /// <param name="values">The values to append</param>
-        /// <returns>The updated range</returns>
+        /// <param name="range">範圍的 A1 表示法 (例如, "Sheet1!A:D")</param>
+        /// <param name="values">要附加的值</param>
+        /// <returns>更新後的範圍</returns>
         public async Task<string> AppendAsync(string range, IList<IList<object>> values)
         {
             var valueRange = new ValueRange { Values = values };
             var request = _sheetsService.Spreadsheets.Values.Append(valueRange, _spreadsheetId, range);
             request.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
             request.InsertDataOption = SpreadsheetsResource.ValuesResource.AppendRequest.InsertDataOptionEnum.INSERTROWS;
-            
+
             var response = await request.ExecuteAsync();
             return response.Updates?.UpdatedRange ?? string.Empty;
         }
 
         /// <summary>
-        /// Clear data in a specific range in the spreadsheet
+        /// 清除試算表中特定範圍的資料
         /// </summary>
-        /// <param name="range">The A1 notation of the range (e.g., "Sheet1!A1:D10")</param>
-        /// <returns>The cleared range</returns>
+        /// <param name="range">範圍的 A1 表示法 (例如, "Sheet1!A1:D10")</param>
+        /// <returns>已清除的範圍</returns>
         public async Task<string> ClearAsync(string range)
         {
             var request = _sheetsService.Spreadsheets.Values.Clear(new ClearValuesRequest(), _spreadsheetId, range);
@@ -92,12 +92,12 @@ namespace GoogleSheetHelper
         }
 
         /// <summary>
-        /// Delete rows from a spreadsheet
+        /// 從試算表中刪除列
         /// </summary>
-        /// <param name="sheetId">The sheet ID (not the spreadsheet ID)</param>
-        /// <param name="startRowIndex">0-based index of the first row to delete</param>
-        /// <param name="endRowIndex">0-based index of the last row to delete + 1</param>
-        /// <returns>True if successful</returns>
+        /// <param name="sheetId">工作表 ID (不是試算表 ID)</param>
+        /// <param name="startRowIndex">要刪除的第一列的索引 (從 0 開始)</param>
+        /// <param name="endRowIndex">要刪除的最後一列的索引 + 1 (從 0 開始)</param>
+        /// <returns>成功時返回 True</returns>
         public async Task<bool> DeleteRowsAsync(int sheetId, int startRowIndex, int endRowIndex)
         {
             var requests = new List<Request>
@@ -123,14 +123,14 @@ namespace GoogleSheetHelper
         }
 
         /// <summary>
-        /// Get all sheets in the spreadsheet
+        /// 取得試算表中的所有工作表
         /// </summary>
-        /// <returns>A dictionary of sheet names and their IDs</returns>
+        /// <returns>工作表名稱和其 ID 的字典</returns>
         public async Task<Dictionary<string, int>> GetSheetsAsync()
         {
             var response = await _sheetsService.Spreadsheets.Get(_spreadsheetId).ExecuteAsync();
             var sheets = new Dictionary<string, int>();
-            
+
             foreach (var sheet in response.Sheets)
             {
                 if (sheet.Properties?.SheetId != null && !string.IsNullOrEmpty(sheet.Properties?.Title))
@@ -138,7 +138,7 @@ namespace GoogleSheetHelper
                     sheets.Add(sheet.Properties.Title, sheet.Properties.SheetId.Value);
                 }
             }
-            
+
             return sheets;
         }
     }
